@@ -2,6 +2,8 @@
 
 輔助台灣國中理化化學單元的互動工具，不取代課本。
 
+線上版：https://kigichang.github.io/fullmetal/（推送到 `main` 後由 GitHub Actions 自動部署）
+
 | 工具 | 路徑 | 對應單元 |
 | --- | --- | --- |
 | 反應式平衡與質量守恆 | `#/balance` | 八年級・化學反應 |
