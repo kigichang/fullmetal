@@ -3,11 +3,13 @@ import { HashRouter, Link, NavLink, Route, Routes, useLocation } from 'react-rou
 import Home from './pages/Home'
 import AcidBase from './tools/AcidBase/AcidBase'
 import Balancer from './tools/Balancer/Balancer'
+import PeriodicTable from './tools/PeriodicTable/PeriodicTable'
 import Precipitation from './tools/Precipitation/Precipitation'
 import { TOOLS } from './tools/registry'
 import Stoichiometry from './tools/Stoichiometry/Stoichiometry'
 
 const NAV = [
+  { to: TOOLS.periodicTable.path, label: '週期表' },
   { to: TOOLS.balancer.path, label: '反應式平衡' },
   { to: TOOLS.stoichiometry.path, label: '莫耳計算' },
   { to: TOOLS.acidBase.path, label: '酸鹼' },
@@ -27,7 +29,7 @@ export default function App() {
     <HashRouter>
       <ScrollToTop />
       <div className="min-h-dvh">
-        <header className="sticky top-0 z-10 border-b border-line bg-bg/90 backdrop-blur">
+        <header className="sticky top-0 z-30 border-b border-line bg-bg/90 backdrop-blur">
           <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-2.5">
             <Link to="/" className="shrink-0 font-bold">
               化學互動工具箱
@@ -50,6 +52,7 @@ export default function App() {
         <main className="mx-auto max-w-6xl px-4 py-6">
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path={TOOLS.periodicTable.path} element={<PeriodicTable />} />
             <Route path={TOOLS.balancer.path} element={<Balancer />} />
             <Route path={TOOLS.stoichiometry.path} element={<Stoichiometry />} />
             <Route path={TOOLS.acidBase.path} element={<AcidBase />} />

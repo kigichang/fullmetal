@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { Chem } from '../components/Chem'
 import { TOOLS } from '../tools/registry'
 
-const ORDER = [TOOLS.balancer, TOOLS.stoichiometry, TOOLS.acidBase, TOOLS.precipitation]
+const ORDER = [TOOLS.periodicTable, TOOLS.balancer, TOOLS.stoichiometry, TOOLS.acidBase, TOOLS.precipitation]
 
 export default function Home() {
   return (

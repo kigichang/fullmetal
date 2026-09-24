@@ -1,6 +1,13 @@
 import type { ToolMeta } from '../components/ToolLayout'
 
 export const TOOLS = {
+  periodicTable: {
+    path: '/periodic-table',
+    title: '元素週期表',
+    unit: '八年級・物質的基本結構',
+    goal: '118 個元素一次看齊：點任一元素看電子排列、原子量與生活應用。',
+    preview: 'H He Li Be B C N O',
+  },
   balancer: {
     path: '/balance',
     title: '反應式平衡與質量守恆',
