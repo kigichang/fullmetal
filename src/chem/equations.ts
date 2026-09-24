@@ -28,3 +28,14 @@ export const REACTIONS: Reaction[] = [
   { id: 'aluminium', nameZh: '鋁與鹽酸反應', level: 'hard', reactants: ['Al', 'HCl'], products: ['AlCl3', 'H2'], coefficients: [2, 6, 2, 3] },
   { id: 'respiration', nameZh: '葡萄糖氧化（呼吸作用）', level: 'hard', reactants: ['C6H12O6', 'O2'], products: ['CO2', 'H2O'], coefficients: [1, 6, 6, 6] },
 ]
+
+/** 反應式的 Chem 字串，例如 "2H2 + O2 -> 2H2O" */
+export function equationChem(r: Reaction): string {
+  const species = [...r.reactants, ...r.products]
+  const nR = r.reactants.length
+  return species
+    .map((f, i) => `${r.coefficients[i] === 1 ? '' : r.coefficients[i]}${f}`)
+    .reduce((acc, s, i) => (i === 0 ? s : `${acc} ${i === nR ? '->' : '+'} ${s}`), '')
+}
+
+export const TWO_REACTANT_REACTIONS = REACTIONS.filter((r) => r.reactants.length === 2)

@@ -19,14 +19,14 @@ export const TOOLS = {
     path: '/stoichiometry',
     title: '莫耳與限量試劑計算台',
     unit: '八年級・原子量、分子量與莫耳',
-    goal: '一步一步把克數換成莫耳，找出誰先用完、生成多少產物。',
+    goal: '先用分子個數預測誰會剩下，再一步步把克數換成莫耳，找出限量試劑。',
     preview: 'CH4 + 2O2 -> CO2 + 2H2O',
   },
   acidBase: {
     path: '/acid-base',
     title: '酸鹼指示劑與中和',
     unit: '八、九年級・電解質與酸鹼鹽',
-    goal: '看指示劑在不同 pH 的顏色，並滴入氫氧化鈉觀察中和過程。',
+    goal: '看指示劑在不同 pH 的顏色、觀察中和過程，並比較強酸與弱酸的粒子。',
     preview: 'H^+ + OH^- -> H2O',
   },
   precipitation: {

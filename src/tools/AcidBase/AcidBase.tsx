@@ -2,14 +2,19 @@ import { useState } from 'react'
 import { acidityLabel, indicatorColor, INDICATORS, rgbaCss, SUBSTANCES, type Indicator } from '../../chem/acidBase'
 import { Chem } from '../../components/Chem'
 import { ToolLayout } from '../../components/ToolLayout'
+import { DiagnosticSet } from '../../components/TwoTierQuestion'
 import { Card, CardTitle, Chip, Segmented } from '../../components/ui'
+import { ACID_BASE_QUESTIONS } from '../../learning/questions/acidBase'
+import { useTabParam } from '../../lib/useTabParam'
 import { TOOLS } from '../registry'
 import { Neutralization } from './Neutralization'
+import { StrengthVsConcentration } from './StrengthVsConcentration'
 
-type Tab = 'scale' | 'neutralize'
+const TABS = ['scale', 'neutralize', 'strength', 'quiz'] as const
+type Tab = (typeof TABS)[number]
 
 export default function AcidBase() {
-  const [tab, setTab] = useState<Tab>('scale')
+  const [tab, setTab, params] = useTabParam<Tab>(TABS, 'scale')
   const [indicator, setIndicator] = useState<Indicator>(INDICATORS[3])
 
   return (
@@ -18,11 +23,14 @@ export default function AcidBase() {
         value={tab}
         onChange={setTab}
         options={[
-          { value: 'scale', label: 'pH 與指示劑' },
-          { value: 'neutralize', label: '中和實驗' },
+          { value: 'scale', label: '① pH 與指示劑' },
+          { value: 'neutralize', label: '② 中和實驗' },
+          { value: 'strength', label: '③ 強度與濃度' },
+          { value: 'quiz', label: '④ 診斷挑戰' },
         ]}
       />
 
+      {(tab === 'scale' || tab === 'neutralize') && (
       <Card>
         <CardTitle>指示劑</CardTitle>
         <div className="flex flex-wrap gap-2">
@@ -35,7 +43,12 @@ export default function AcidBase() {
         <p className="mt-2 text-sm text-ink-2">{indicator.desc}</p>
       </Card>
 
-      {tab === 'scale' ? <PhScale indicator={indicator} /> : <Neutralization indicator={indicator} />}
+      )}
+
+      {tab === 'scale' && <PhScale indicator={indicator} />}
+      {tab === 'neutralize' && <Neutralization indicator={indicator} />}
+      {tab === 'strength' && <StrengthVsConcentration key={params.toString()} params={params} />}
+      {tab === 'quiz' && <DiagnosticSet questions={ACID_BASE_QUESTIONS} />}
     </ToolLayout>
   )
 }
@@ -104,6 +117,9 @@ function Concepts() {
       </p>
       <p>
         pH 每差 1，<Chem>H^+</Chem> 濃度就差 10 倍。所以 pH 2 的溶液比 pH 4 酸 100 倍。
+      </p>
+      <p>
+        酸鹼的<strong>強度</strong>和<strong>濃度</strong>是兩回事：強酸（如鹽酸）在水中幾乎完全解離，弱酸（如醋酸）只有少部分解離；濃度則是溶了多少。酸性強弱也跟分子裡有幾個 H 無關。
       </p>
       <p>
         石蕊試紙口訣：<strong>藍色石蕊試紙遇酸變紅</strong>、<strong>紅色石蕊試紙遇鹼變藍</strong>。酚酞只在鹼性時變紅，無法分辨酸性與中性。

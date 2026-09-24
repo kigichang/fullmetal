@@ -2,8 +2,13 @@ import { useState, type ReactNode } from 'react'
 import type { Reaction } from '../../chem/equations'
 import { molarMass } from '../../chem/formula'
 import { AVOGADRO_COEF, fmt, isClose, type AmountUnit, type LimitingResult } from '../../chem/stoichiometry'
-import { Chem } from '../../components/Chem'
+import { Chem, ChemText } from '../../components/Chem'
 import { Button, Callout, Card, CardTitle } from '../../components/ui'
+import { MISCONCEPTIONS } from '../../learning/misconceptions'
+import { useLearning } from '../../learning/useLearning'
+
+/** 每一步對應的觀念 */
+const STEP_CONCEPTS = ['mole.conversion', 'mole.ratio', 'mole.limiting', 'mole.ratio']
 
 interface Field {
   id: string
@@ -27,6 +32,8 @@ export function GuidedSteps({ reaction, inputs, moles, result, onDone }: Props) 
   const [values, setValues] = useState<Record<string, string>>({})
   const [checked, setChecked] = useState(false)
   const [choice, setChoice] = useState<string | null>(null)
+  const [recorded, setRecorded] = useState<Set<number>>(() => new Set())
+  const { store } = useLearning()
 
   const [A, B] = reaction.reactants
   const coefs = reaction.coefficients
@@ -116,11 +123,34 @@ export function GuidedSteps({ reaction, inputs, moles, result, onDone }: Props) 
     setChecked(false)
     if (next >= steps.length) onDone()
   }
+  /** 第 ③ 步選錯時，推測學生用了哪一種錯誤的比較方法 */
+  const limitingMisconception = (): string | undefined => {
+    if (step !== 2 || choice === null || choice === limitingKey) return undefined
+    if (choice === EXACT) return 'all-consumed'
+    const masses = moles.map((n, i) => n * molarMass(reaction.reactants[i]))
+    const smaller = (xs: number[]) => (xs[0] < xs[1] ? 0 : 1)
+    const pickedIdx = reaction.reactants.indexOf(choice)
+    const byGrams = inputs.every((x) => x.unit === 'g')
+    if (byGrams && pickedIdx === smaller(masses)) return 'limiting-smaller-mass'
+    if (pickedIdx === smaller(moles)) return 'limiting-no-ratio'
+    return undefined
+  }
+  const misconception = checked && !stepOk ? limitingMisconception() : undefined
+
+  // 每一步只記錄第一次的結果，避免反覆嘗試灌高或拉低精熟度
+  const recordOnce = (correct: boolean, misconceptionId?: string) => {
+    if (recorded.has(step)) return
+    setRecorded((r) => new Set(r).add(step))
+    store.record(STEP_CONCEPTS[step], correct, { misconceptionId, bkt: { guess: step === 2 ? 1 / 3 : 0.05 } })
+  }
+
   const check = () => {
     setChecked(true)
+    recordOnce(!!stepOk, stepOk ? undefined : limitingMisconception())
     if (stepOk) advance()
   }
   const reveal = () => {
+    recordOnce(false)
     if (step === 2) setChoice(limitingKey)
     else setValues((v) => ({ ...v, ...Object.fromEntries(current.fields.map((f) => [f.id, fmt(f.expected, 4)])) }))
     setChecked(true)
@@ -201,7 +231,20 @@ export function GuidedSteps({ reaction, inputs, moles, result, onDone }: Props) 
                       })}
                     </div>
                   )}
-                  {checked && !stepOk && <Callout tone="bad">還不對喔，再看一下提示。</Callout>}
+                  {checked && !stepOk && (
+                    <Callout tone="bad">
+                      {misconception ? (
+                        <>
+                          <strong>{MISCONCEPTIONS[misconception].nameZh}？</strong>
+                          <span className="mt-1 block">
+                            <ChemText>{MISCONCEPTIONS[misconception].explanation}</ChemText>
+                          </span>
+                        </>
+                      ) : (
+                        '還不對喔，再看一下提示。'
+                      )}
+                    </Callout>
+                  )}
                   <div className="flex flex-wrap gap-2">
                     {checked && stepOk ? (
                       <Button variant="primary" onClick={advance}>

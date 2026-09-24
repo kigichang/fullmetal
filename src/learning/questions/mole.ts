@@ -1,0 +1,130 @@
+import type { TwoTierQuestion } from '../twoTier'
+
+export const MOLE_QUESTIONS: TwoTierQuestion[] = [
+  {
+    id: 'mole-j1',
+    concept: 'mole.limiting',
+    level: 'junior',
+    stem: '{{2H2 + O2 -> 2H2O}}。容器中有 6 個 {{H2}} 分子和 4 個 {{O2}} 分子，反應到不能再反應為止，最後會剩下什麼？',
+    options: [
+      { text: '剩下 1 個 {{O2}}', correct: true },
+      { text: '剩下 2 個 {{H2}}', misconception: 'limiting-no-ratio' },
+      { text: '剩下 2 個 {{O2}}' },
+      { text: '都不剩，全部變成水', misconception: 'all-consumed' },
+    ],
+    reasons: [
+      { text: '{{H2}} 與 {{O2}} 以 2 : 1 反應，6 個 {{H2}} 只需要 3 個 {{O2}}', correct: true },
+      { text: '{{O2}} 的個數比較少，所以 {{O2}} 會先用完', misconception: 'limiting-no-ratio' },
+      { text: '反應物會全部變成產物，所以不會剩下', misconception: 'all-consumed' },
+      { text: '係數比等於質量比，要先換成質量才能比較', misconception: 'coef-is-mass-ratio' },
+    ],
+  },
+  {
+    id: 'mole-j2',
+    concept: 'mole.ratio',
+    level: 'junior',
+    stem: '在 {{2H2 + O2 -> 2H2O}} 中，參加反應的 {{H2}} 與 {{O2}} 質量比是多少？（H = 1、O = 16）',
+    options: [
+      { text: '2 : 1', misconception: 'coef-is-mass-ratio' },
+      { text: '1 : 8', correct: true },
+      { text: '1 : 16', misconception: 'ignore-coefficient' },
+      { text: '1 : 1' },
+    ],
+    reasons: [
+      { text: '係數比是莫耳數比，還要乘上分子量：2×2 : 1×32', correct: true },
+      { text: '係數比就是質量比', misconception: 'coef-is-mass-ratio' },
+      { text: '只要比較分子量：{{H2}} 是 2、{{O2}} 是 32', misconception: 'ignore-coefficient' },
+      { text: '兩者都是由兩個原子組成的分子，質量相同' },
+    ],
+  },
+  {
+    id: 'mole-j3',
+    concept: 'mole.conversion',
+    level: 'junior',
+    stem: '9 克的水（{{H2O}}，分子量 18）是多少莫耳？大約含有多少個水分子？',
+    options: [
+      { text: '0.5 莫耳，3×10²³ 個', correct: true },
+      { text: '2 莫耳，1.2×10²⁴ 個', misconception: 'mole-inverted' },
+      { text: '0.5 莫耳，6×10²³ 個' },
+      { text: '162 莫耳，約 10²⁶ 個', misconception: 'mole-inverted' },
+    ],
+    reasons: [
+      { text: '莫耳數 = 質量 ÷ 分子量；1 莫耳有 6×10²³ 個粒子', correct: true },
+      { text: '莫耳數 = 分子量 ÷ 質量', misconception: 'mole-inverted' },
+      { text: '莫耳數 = 質量 × 分子量', misconception: 'mole-inverted' },
+      { text: '不論多少莫耳，都含有 6×10²³ 個分子' },
+    ],
+  },
+  {
+    id: 'mole-j4',
+    concept: 'mole.limiting',
+    level: 'junior',
+    stem: '4 克 {{H2}} 和 16 克 {{O2}} 反應生成水（{{2H2 + O2 -> 2H2O}}），哪一個是限量試劑？',
+    options: [
+      { text: '{{H2}}', misconception: 'limiting-smaller-mass' },
+      { text: '{{O2}}', correct: true },
+      { text: '兩者剛好完全反應', misconception: 'all-consumed' },
+      { text: '條件不足，無法判斷' },
+    ],
+    reasons: [
+      { text: '換成莫耳數：{{H2}} 2 莫耳、{{O2}} 0.5 莫耳；2 莫耳 {{H2}} 需要 1 莫耳 {{O2}}，但只有 0.5 莫耳', correct: true },
+      { text: '{{H2}} 只有 4 克，比較少，所以先用完', misconception: 'limiting-smaller-mass' },
+      { text: '質量守恆，所以兩者會剛好反應完', misconception: 'all-consumed' },
+      { text: '要知道兩種氣體的體積才能判斷' },
+    ],
+  },
+  {
+    id: 'mole-j5',
+    concept: 'reaction.mass-conservation',
+    level: 'junior',
+    stem: '12 克鎂與 8 克氧氣在密閉容器中剛好完全反應（{{2Mg + O2 -> 2MgO}}），生成氧化鎂多少克？',
+    options: [
+      { text: '20 克', correct: true },
+      { text: '12 克', misconception: 'gas-no-mass' },
+      { text: '4 克' },
+      { text: '要知道反應溫度才能算' },
+    ],
+    reasons: [
+      { text: '質量守恆：反應前後的總質量相同，12 + 8 = 20', correct: true },
+      { text: '氧氣是氣體，沒有質量，所以產物只有鎂的質量', misconception: 'gas-no-mass' },
+      { text: '反應時會有質量轉變成熱能而消失' },
+      { text: '產物的質量只能用實驗測量，無法計算' },
+    ],
+  },
+  {
+    id: 'mole-s1',
+    concept: 'mole.limiting',
+    level: 'senior',
+    stem: '{{N2 + 3H2 -> 2NH3}}。取 28 克 {{N2}} 與 9 克 {{H2}} 反應，最多可生成多少克 {{NH3}}？（N = 14、H = 1）',
+    options: [
+      { text: '34 克', correct: true },
+      { text: '37 克', misconception: 'all-consumed' },
+      { text: '51 克', misconception: 'limiting-no-ratio' },
+      { text: '17 克' },
+    ],
+    reasons: [
+      { text: '{{N2}} 1 mol、{{H2}} 4.5 mol，除以係數後 {{N2}} 只夠 1 份，生成 2 mol {{NH3}}', correct: true },
+      { text: '質量守恆，所以產物質量是 28 + 9', misconception: 'all-consumed' },
+      { text: '{{H2}} 的莫耳數比較多，應該由 {{H2}} 決定產量', misconception: 'limiting-no-ratio' },
+      { text: '{{N2}} 和 {{NH3}} 的係數比是 1 : 1' },
+    ],
+  },
+  {
+    id: 'mole-s2',
+    concept: 'mole.conversion',
+    level: 'senior',
+    stem: '3.01×10²³ 個 {{CO2}} 分子的質量是多少克？（C = 12、O = 16，亞佛加厥數取 6.02×10²³）',
+    options: [
+      { text: '22 克', correct: true },
+      { text: '44 克' },
+      { text: '88 克' },
+      { text: '11 克' },
+    ],
+    reasons: [
+      { text: '粒子數 ÷ 6.02×10²³ = 0.5 mol，再乘以莫耳質量 44 g/mol', correct: true },
+      { text: '不到 6.02×10²³ 個的粒子都算 1 莫耳' },
+      { text: '3.01×10²³ 是 6.02×10²³ 的兩倍，所以是 2 莫耳' },
+      { text: '莫耳數 = 莫耳質量 ÷ 粒子數', misconception: 'mole-inverted' },
+    ],
+  },
+]

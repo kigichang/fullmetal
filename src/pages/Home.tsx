@@ -13,6 +13,14 @@ export default function Home() {
         <p className="max-w-2xl text-ink-2">
           課本的圖是靜止的，這裡的每個工具都能讓你自己調整、立刻看到結果。遇到卡住的觀念時，花 5 分鐘來玩一下，再回去看課本會更清楚。
         </p>
+        <p className="max-w-2xl text-sm text-ink-2">
+          每個觀念都能從三個角度看：<strong className="text-ink">巨觀</strong>（看得到的現象）、
+          <strong className="text-ink">微觀</strong>（粒子）、<strong className="text-ink">符號</strong>（化學式）。做完「診斷挑戰」後，到
+          <Link to="/progress" className="mx-1 font-medium text-accent underline underline-offset-4">
+            我的學習紀錄
+          </Link>
+          看看哪些觀念已經精熟、哪些還有迷思。
+        </p>
       </section>
 
       <ul className="grid gap-4 sm:grid-cols-2">

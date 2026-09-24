@@ -137,3 +137,54 @@ export function acidityLabel(pH: number): string {
   if (pH > 7.05) return '鹼性'
   return '中性'
 }
+
+// ---- 強度與濃度（弱酸、弱鹼） ----
+
+export interface Electrolyte {
+  id: string
+  /** Chem 字串 */
+  formula: string
+  nameZh: string
+  kind: 'acid' | 'base'
+  strong: boolean
+  /** 弱酸的 Ka 或弱鹼的 Kb */
+  k?: number
+  /** 解離出的離子（Chem 字串）：[產生 H⁺ 或 OH⁻ 的一方, 另一方] */
+  ions: [string, string]
+  /** 解離反應式（Chem 字串） */
+  equation: string
+}
+
+export const ELECTROLYTES: Electrolyte[] = [
+  { id: 'HCl', formula: 'HCl', nameZh: '鹽酸', kind: 'acid', strong: true, ions: ['H^+', 'Cl^-'], equation: 'HCl -> H^+ + Cl^-' },
+  { id: 'HNO3', formula: 'HNO3', nameZh: '硝酸', kind: 'acid', strong: true, ions: ['H^+', 'NO3^-'], equation: 'HNO3 -> H^+ + NO3^-' },
+  { id: 'CH3COOH', formula: 'CH3COOH', nameZh: '醋酸', kind: 'acid', strong: false, k: 1.8e-5, ions: ['H^+', 'CH3COO^-'], equation: 'CH3COOH <=> H^+ + CH3COO^-' },
+  { id: 'HF', formula: 'HF', nameZh: '氫氟酸', kind: 'acid', strong: false, k: 6.8e-4, ions: ['H^+', 'F^-'], equation: 'HF <=> H^+ + F^-' },
+  { id: 'NaOH', formula: 'NaOH', nameZh: '氫氧化鈉', kind: 'base', strong: true, ions: ['OH^-', 'Na^+'], equation: 'NaOH -> Na^+ + OH^-' },
+  { id: 'NH3', formula: 'NH3', nameZh: '氨水', kind: 'base', strong: false, k: 1.8e-5, ions: ['OH^-', 'NH4^+'], equation: 'NH3 + H2O <=> NH4^+ + OH^-' },
+]
+
+/** 解離出的 H⁺（酸）或 OH⁻（鹼）濃度 x：強電解質 x = c；弱電解質解 x²/(c−x) = K */
+export function ionizedConcentration(e: Electrolyte, c: number): number {
+  if (e.strong || !e.k) return c
+  const k = e.k
+  return (-k + Math.sqrt(k * k + 4 * k * c)) / 2
+}
+
+/** 解離百分率 α（0–1） */
+export function dissociationFraction(e: Electrolyte, c: number): number {
+  return c > 0 ? ionizedConcentration(e, c) / c : 0
+}
+
+export function electrolytePh(e: Electrolyte, c: number): number {
+  const x = ionizedConcentration(e, c)
+  const pH = e.kind === 'acid' ? -Math.log10(x) : 14 + Math.log10(x)
+  return Math.max(0, Math.min(14, pH))
+}
+
+/** 導電燈泡亮度（0–1）：依離子總濃度取對數，10⁻⁴ M 幾乎不亮、1 M 最亮 */
+export function conductivity(e: Electrolyte, c: number): number {
+  const ions = 2 * ionizedConcentration(e, c)
+  if (ions <= 0) return 0
+  return Math.max(0, Math.min(1, (Math.log10(ions) + 4) / 4))
+}

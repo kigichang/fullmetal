@@ -1,4 +1,5 @@
 import type { PrecipitationResult } from '../../chem/precipitation'
+import { seeded } from '../../lib/random'
 
 const W = 120
 const H = 240
@@ -8,11 +9,6 @@ const TUBE_BOTTOM = 220
 const LIQUID_TOP = 90
 const CLEAR = 'rgba(186, 230, 253, 0.28)'
 
-/** 簡單的偽亂數，讓沉澱粒子位置固定但看起來自然 */
-function seeded(i: number) {
-  const x = Math.sin(i * 12.9898) * 43758.5453
-  return x - Math.floor(x)
-}
 
 export function TestTube({ result }: { result: PrecipitationResult }) {
   const { outcome } = result

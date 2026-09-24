@@ -74,3 +74,28 @@ export function fmt(n: number, digits = 3): string {
   if (Math.abs(n) < 1e-9) return '0'
   return parseFloat(n.toFixed(digits)).toString()
 }
+
+export interface PairState {
+  /** 依 reactants、products 順序的分子個數 */
+  counts: number[]
+}
+
+/**
+ * 以分子個數逐步反應：每一步消耗「一份」反應物（各自的係數個），生成一份產物。
+ * 回傳從初始到無法再反應為止的每個狀態。只支援兩個反應物。
+ */
+export function pairSteps(reaction: Reaction, reactantCounts: [number, number]): PairState[] {
+  const nR = reaction.reactants.length
+  const coefs = reaction.coefficients
+  const units = Math.min(...reactantCounts.map((n, i) => Math.floor(n / coefs[i])))
+  const states: PairState[] = []
+  for (let u = 0; u <= units; u++) {
+    states.push({
+      counts: [
+        ...reactantCounts.map((n, i) => n - coefs[i] * u),
+        ...reaction.products.map((_, j) => coefs[nR + j] * u),
+      ],
+    })
+  }
+  return states
+}

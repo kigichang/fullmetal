@@ -2,7 +2,7 @@ import { Fragment, type ReactNode } from 'react'
 
 /**
  * 渲染化學式／反應式字串。
- * 規則：以空白分隔；`+` 與 `->` 為符號；物種開頭的數字是係數；
+ * 規則：以空白分隔；`+`、`->`、`<=>` 為符號；物種開頭的數字是係數；
  * 字母或右括號後的數字為下標；`^` 之後的電荷為上標（例如 SO4^2-）。
  */
 export function Chem({ children, className }: { children: string; className?: string }) {
@@ -21,6 +21,7 @@ export function Chem({ children, className }: { children: string; className?: st
 
 function renderToken(token: string): ReactNode {
   if (token === '->') return '→'
+  if (token === '<=>') return '⇌'
   if (token === '+') return '+'
   const out: ReactNode[] = []
   let i = 0
@@ -57,4 +58,15 @@ function renderToken(token: string): ReactNode {
   }
   flush()
   return out
+}
+
+/** 一般文字中夾帶化學式：{{H2O}} 這種片段會用 Chem 渲染 */
+export function ChemText({ children }: { children: string }) {
+  return (
+    <>
+      {children.split(/\{\{(.+?)\}\}/).map((part, i) =>
+        i % 2 ? <Chem key={i}>{part}</Chem> : <Fragment key={i}>{part}</Fragment>,
+      )}
+    </>
+  )
 }
