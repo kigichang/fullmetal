@@ -5,7 +5,7 @@ const BASE_R = 11
 const PER_ROW = 6
 
 /** 以彩色小球畫出一個分子：非氫原子在前、氫原子在後，每列最多 6 顆，彼此略為重疊 */
-export function Molecule({ formula, scale = 1 }: { formula: string; scale?: number }) {
+export function Molecule({ formula, scale = 1, focus = null }: { formula: string; scale?: number; /** 只強調這個元素，其他原子變淡 */ focus?: string | null }) {
   const counts = parseFormula(formula)
   const atoms = Object.entries(counts)
     .sort(([a], [b]) => (a === 'H' ? 1 : 0) - (b === 'H' ? 1 : 0))
@@ -29,8 +29,15 @@ export function Molecule({ formula, scale = 1 }: { formula: string; scale?: numb
         const cx = maxR + 1 + col * step
         const cy = maxR + 1 + row * step
         return (
-          <g key={i}>
-            <circle cx={cx} cy={cy} r={rr} fill={e.color} stroke="rgba(0,0,0,0.35)" strokeWidth={0.8} />
+          <g key={i} opacity={focus && focus !== el ? 0.15 : 1} style={{ transition: 'opacity 0.2s' }}>
+            <circle
+              cx={cx}
+              cy={cy}
+              r={rr}
+              fill={e.color}
+              stroke={focus === el ? 'var(--accent)' : 'rgba(0,0,0,0.35)'}
+              strokeWidth={focus === el ? 2 : 0.8}
+            />
             <circle cx={cx - rr * 0.35} cy={cy - rr * 0.35} r={rr * 0.3} fill="rgba(255,255,255,0.35)" />
           </g>
         )

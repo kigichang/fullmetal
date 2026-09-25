@@ -144,3 +144,70 @@ export function evaluate(cation: Ion, anion: Ion): PrecipitationResult {
 
   return { ...entry, cation, anion, formula: product, netIonic, fullEquation }
 }
+
+export interface IonTerm {
+  /** Chem 字串 */
+  ion: string
+  coef: number
+  spectator: boolean
+}
+
+export interface ParticleScene {
+  /** 份數：每份含 cationCount 個陽離子與 anionCount 個陰離子 */
+  portions: number
+  cations: number
+  anions: number
+  /** 陽離子溶液的硝酸根、陰離子溶液的鈉離子（旁觀離子） */
+  nitrates: number
+  sodiums: number
+  /** 會結合成固體的份數（微溶只取一部分；可溶為 0） */
+  solidUnits: number
+  cationCount: number
+  anionCount: number
+  /** 完整離子方程式（反應物、生成物）；非一般沉澱時為 null */
+  complete: { left: IonTerm[]; right: IonTerm[] } | null
+}
+
+const MAX_PARTICLES = 36
+
+/**
+ * 粒子層的沉澱反應：陽離子取自硝酸鹽溶液、陰離子取自鈉鹽溶液，依化學式配比放入剛好完全反應的量。
+ * 只有一般的沉澱／微溶才會形成固體；特殊反應只顯示離子混合。
+ */
+export function particleScene(r: PrecipitationResult): ParticleScene {
+  const { cation, anion } = r
+  const { cationCount, anionCount } = compoundFormula(cation, anion)
+  const a = cation.charge
+  const b = -anion.charge
+  const perPortion = cationCount * (1 + a) + anionCount * (1 + b)
+  const portions = Math.max(1, Math.min(4, Math.floor(MAX_PARTICLES / perPortion)))
+  const regular = r.fullEquation !== null
+  const solidUnits = !regular ? 0 : r.outcome === 'slight' ? Math.max(1, Math.floor(portions / 2)) : portions
+  const spectatorCount = cationCount * a // = anionCount * b
+  const complete = regular
+    ? {
+        left: [
+          { ion: ionChem(cation), coef: cationCount, spectator: false },
+          { ion: 'NO3^-', coef: spectatorCount, spectator: true },
+          { ion: 'Na^+', coef: spectatorCount, spectator: true },
+          { ion: ionChem(anion), coef: anionCount, spectator: false },
+        ],
+        right: [
+          { ion: `${r.formula}↓`, coef: 1, spectator: false },
+          { ion: 'Na^+', coef: spectatorCount, spectator: true },
+          { ion: 'NO3^-', coef: spectatorCount, spectator: true },
+        ],
+      }
+    : null
+  return {
+    portions,
+    cations: cationCount * portions,
+    anions: anionCount * portions,
+    nitrates: cationCount * portions * a,
+    sodiums: anionCount * portions * b,
+    solidUnits,
+    cationCount,
+    anionCount,
+    complete,
+  }
+}

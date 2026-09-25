@@ -1,15 +1,17 @@
-import { useEffect } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { HashRouter, Link, NavLink, Route, Routes, useLocation } from 'react-router-dom'
 import Home from './pages/Home'
-import Progress from './pages/Progress'
-import AcidBase from './tools/AcidBase/AcidBase'
-import Balancer from './tools/Balancer/Balancer'
-import PeriodicTable from './tools/PeriodicTable/PeriodicTable'
-import Precipitation from './tools/Precipitation/Precipitation'
 import { TOOLS } from './tools/registry'
-import Stoichiometry from './tools/Stoichiometry/Stoichiometry'
-import Equilibrium from './tools/Equilibrium/Equilibrium'
-import Redox from './tools/Redox/Redox'
+
+// 每個工具分開打包，進入該頁時才載入
+const Progress = lazy(() => import('./pages/Progress'))
+const AcidBase = lazy(() => import('./tools/AcidBase/AcidBase'))
+const Balancer = lazy(() => import('./tools/Balancer/Balancer'))
+const PeriodicTable = lazy(() => import('./tools/PeriodicTable/PeriodicTable'))
+const Precipitation = lazy(() => import('./tools/Precipitation/Precipitation'))
+const Stoichiometry = lazy(() => import('./tools/Stoichiometry/Stoichiometry'))
+const Equilibrium = lazy(() => import('./tools/Equilibrium/Equilibrium'))
+const Redox = lazy(() => import('./tools/Redox/Redox'))
 
 const NAV = [
   { to: TOOLS.periodicTable.path, label: '週期表' },
@@ -56,6 +58,7 @@ export default function App() {
           </div>
         </header>
         <main className="mx-auto max-w-6xl px-4 py-6">
+          <Suspense fallback={<p className="py-10 text-center text-sm text-ink-2">載入中…</p>}>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path={TOOLS.periodicTable.path} element={<PeriodicTable />} />
@@ -68,6 +71,7 @@ export default function App() {
             <Route path="/progress" element={<Progress />} />
             <Route path="*" element={<Home />} />
           </Routes>
+          </Suspense>
         </main>
         <footer className="mx-auto max-w-6xl px-4 pt-4 pb-8 text-xs text-ink-2">
           輔助課本學習用，數值為教學近似值；以學校課本與老師說明為準。

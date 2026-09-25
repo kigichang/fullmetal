@@ -1,9 +1,27 @@
-import { useState } from 'react'
-import { ANIONS, CATIONS, evaluate, ionChem, type Ion, type Outcome, type PrecipitationResult } from '../../chem/precipitation'
-import { Chem } from '../../components/Chem'
+import { useEffect, useState } from 'react'
+import {
+  ANIONS,
+  CATIONS,
+  compoundFormula,
+  evaluate,
+  ionChem,
+  particleScene,
+  type Ion,
+  type Outcome,
+  type PrecipitationResult,
+} from '../../chem/precipitation'
+import { Chem, ChemText } from '../../components/Chem'
 import { ToolLayout } from '../../components/ToolLayout'
-import { Card, CardTitle, Chip, Segmented } from '../../components/ui'
+import { Hl } from '../../components/triplet/Highlight'
+import { TripletLayout } from '../../components/triplet/TripletLayout'
+import { DiagnosticSet } from '../../components/TwoTierQuestion'
+import { Button, Callout, Card, CardTitle, Chip, Segmented } from '../../components/ui'
+import { MISCONCEPTIONS } from '../../learning/misconceptions'
+import { PRECIPITATION_QUESTIONS } from '../../learning/questions/precipitation'
+import { useLearning } from '../../learning/useLearning'
+import { useTabParam } from '../../lib/useTabParam'
 import { TOOLS } from '../registry'
+import { IonMixing, type MixPhase } from './IonMixing'
 import { TestTube } from './TestTube'
 
 const OUTCOME_LABEL: Record<Outcome, string> = {
@@ -20,53 +38,276 @@ const OUTCOME_STYLE: Record<Outcome, string> = {
   special: 'bg-bad-soft text-bad',
 }
 
-type Mode = 'tube' | 'matrix'
+const TABS = ['tube', 'matrix', 'quiz'] as const
+type Tab = (typeof TABS)[number]
 
 export default function Precipitation() {
-  const [mode, setMode] = useState<Mode>('tube')
+  const [tab, setTab] = useTabParam<Tab>(TABS, 'tube')
   const [cation, setCation] = useState<Ion>(CATIONS[3])
   const [anion, setAnion] = useState<Ion>(ANIONS[1])
   const result = evaluate(cation, anion)
 
   return (
     <ToolLayout meta={TOOLS.precipitation} concepts={<Concepts />}>
-      <Segmented<Mode>
-        value={mode}
-        onChange={setMode}
+      <Segmented<Tab>
+        value={tab}
+        onChange={setTab}
         options={[
-          { value: 'tube', label: '試管實驗' },
-          { value: 'matrix', label: '沉澱表總覽' },
+          { value: 'tube', label: '① 試管實驗' },
+          { value: 'matrix', label: '② 沉澱表總覽' },
+          { value: 'quiz', label: '③ 診斷挑戰' },
         ]}
       />
 
-      {mode === 'tube' ? (
-        <div className="grid gap-4 md:grid-cols-[1fr_auto_1fr]">
-          <Card>
-            <CardTitle>陽離子（來自硝酸鹽溶液）</CardTitle>
-            <IonPicker ions={CATIONS} value={cation} onChange={setCation} />
-          </Card>
-          <Card className="flex items-center justify-center md:w-52">
-            <TestTube result={result} />
-          </Card>
-          <Card>
-            <CardTitle>陰離子（來自鈉鹽溶液）</CardTitle>
-            <IonPicker ions={ANIONS} value={anion} onChange={setAnion} />
-          </Card>
-        </div>
-      ) : (
-        <Card>
-          <Matrix
-            selected={result}
-            onSelect={(c, a) => {
-              setCation(c)
-              setAnion(a)
-            }}
-          />
-        </Card>
+      {tab === 'tube' && (
+        <>
+          <div className="grid gap-4 md:grid-cols-2">
+            <Card>
+              <CardTitle>陽離子（來自硝酸鹽溶液）</CardTitle>
+              <IonPicker ions={CATIONS} value={cation} onChange={setCation} />
+            </Card>
+            <Card>
+              <CardTitle>陰離子（來自鈉鹽溶液）</CardTitle>
+              <IonPicker ions={ANIONS} value={anion} onChange={setAnion} />
+            </Card>
+          </div>
+          <MixExperiment key={`${cation.id}|${anion.id}`} result={result} />
+        </>
       )}
 
-      <ResultCard result={result} />
+      {tab === 'matrix' && (
+        <>
+          <Card>
+            <Matrix
+              selected={result}
+              onSelect={(c, a) => {
+                setCation(c)
+                setAnion(a)
+              }}
+            />
+          </Card>
+          <ResultCard result={result} />
+        </>
+      )}
+
+      {tab === 'quiz' && <DiagnosticSet questions={PRECIPITATION_QUESTIONS} />}
     </ToolLayout>
+  )
+}
+
+/** 化合物中文名：陽離子溶液用硝酸鹽、陰離子溶液用鈉鹽 */
+const nitrateName = (c: Ion) => `硝酸${c.nameZh.replace(/根?離子$/, '')}`
+function sodiumName(a: Ion): string {
+  if (a.id === 'OH-') return '氫氧化鈉'
+  if (a.polyatomic) return `${a.nameZh.replace('根', '')}鈉`
+  return `${a.nameZh.replace(/離子$/, '')}化鈉`
+}
+
+/** 預測 → 混合 → 從巨觀、微觀、符號三個表徵觀察 */
+function MixExperiment({ result }: { result: PrecipitationResult }) {
+  const [phase, setPhase] = useState<MixPhase>('apart')
+  const [prediction, setPrediction] = useState<boolean | null>(null)
+  const { store } = useLearning()
+  const hasSolid = result.outcome !== 'soluble' && !!result.color
+  const nitrate = compoundFormula(result.cation, ANIONS[0]).formula
+  const sodium = compoundFormula(CATIONS[0], result.anion).formula
+
+  useEffect(() => {
+    if (phase !== 'mixed') return
+    const t = setTimeout(() => setPhase('formed'), 1400)
+    return () => clearTimeout(t)
+  }, [phase])
+
+  const mix = (predicted: boolean | null) => {
+    if (predicted !== null) {
+      setPrediction(predicted)
+      store.record('ion.precipitation', predicted === hasSolid, {
+        misconceptionId: predicted && !hasSolid ? 'all-mix-precipitate' : undefined,
+        bkt: { guess: 0.5 },
+      })
+    }
+    setPhase('mixed')
+  }
+
+  return (
+    <>
+      <Card className="space-y-3">
+        <p className="text-sm font-semibold">
+          把 {nitrateName(result.cation)}（<Chem>{nitrate}</Chem>）溶液倒進 {sodiumName(result.anion)}（<Chem>{sodium}</Chem>）溶液，你預測會產生沉澱嗎？
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {phase === 'apart' ? (
+            <>
+              <Button variant="primary" onClick={() => mix(true)}>
+                會產生沉澱
+              </Button>
+              <Button variant="primary" onClick={() => mix(false)}>
+                不會
+              </Button>
+              <Button variant="ghost" onClick={() => mix(null)}>
+                不預測，直接混合
+              </Button>
+            </>
+          ) : (
+            <Button
+              onClick={() => {
+                setPhase('apart')
+                setPrediction(null)
+              }}
+            >
+              重來
+            </Button>
+          )}
+        </div>
+        {phase === 'formed' && prediction !== null && (
+          <Callout tone={prediction === hasSolid ? 'good' : 'bad'}>
+            {prediction === hasSolid ? '預測正確！' : hasSolid ? '其實會產生沉澱。' : '其實不會產生沉澱。'}
+            {prediction && !hasSolid && (
+              <span className="mt-1 block">
+                <ChemText>{MISCONCEPTIONS['all-mix-precipitate'].explanation}</ChemText>
+              </span>
+            )}
+          </Callout>
+        )}
+      </Card>
+
+      <TripletLayout
+        macro={
+          <div className="flex flex-col items-center gap-2">
+            {phase === 'apart' ? <TwoSolutions result={result} nitrate={nitrate} sodium={sodium} /> : <TestTube result={result} />}
+            {phase !== 'apart' && (
+              <p className="text-center text-xs text-ink-2">
+                {result.outcome === 'special'
+                  ? `結果：${result.colorName ?? '沒有沉澱'}`
+                  : hasSolid
+                    ? `出現${result.outcome === 'slight' ? '少量' : ''}${result.colorName}沉澱`
+                    : '沒有沉澱，溶液保持澄清'}
+              </p>
+            )}
+          </div>
+        }
+        micro={
+          <div className="space-y-2">
+            <IonMixing result={result} phase={phase} />
+            <IonLegend result={result} />
+            <p className="text-xs text-ink-2">
+              {phase === 'apart'
+                ? '左：硝酸鹽溶液的離子；右：鈉鹽溶液的離子。'
+                : phase === 'mixed'
+                  ? '混合中，離子彼此碰撞…'
+                  : hasSolid && result.fullEquation
+                    ? '結合成固體的離子沉到底部；灰色的旁觀離子仍留在溶液中。'
+                    : result.outcome === 'special'
+                      ? '這個組合是特殊反應，粒子圖只畫出離子混合。'
+                      : '沒有離子結合，全部仍散在水中。'}
+            </p>
+          </div>
+        }
+        symbolic={<SymbolicEquations result={result} revealed={phase === 'formed'} />}
+      />
+
+      {phase === 'formed' && result.note && (
+        <Card>
+          <p className="text-sm text-ink-2">{result.note}</p>
+        </Card>
+      )}
+    </>
+  )
+}
+
+function TwoSolutions({ result, nitrate, sodium }: { result: PrecipitationResult; nitrate: string; sodium: string }) {
+  const CLEAR = 'rgba(186, 230, 253, 0.28)'
+  const beaker = (x: number, color: string) => (
+    <g>
+      <rect x={x + 3} y={40} width={54} height={50} fill={color} />
+      <path d={`M${x} 20 V88 Q${x} 96 ${x + 8} 96 H${x + 52} Q${x + 60} 96 ${x + 60} 88 V20`} fill="none" stroke="var(--glass)" strokeWidth={2.5} />
+    </g>
+  )
+  return (
+    <div className="text-center">
+      <svg viewBox="0 0 150 100" className="h-32" role="img" aria-label="兩杯還沒混合的溶液">
+        {beaker(5, result.cation.solutionColor ?? CLEAR)}
+        {beaker(85, CLEAR)}
+      </svg>
+      <div className="flex justify-around text-xs">
+        <Chem>{nitrate}</Chem>
+        <Chem>{sodium}</Chem>
+      </div>
+    </div>
+  )
+}
+
+function IonLegend({ result }: { result: PrecipitationResult }) {
+  const items = [
+    { k: ionChem(result.cation), color: 'var(--series-1)', note: '' },
+    { k: ionChem(result.anion), color: 'var(--series-2)', note: '' },
+    { k: 'NO3^-', color: '#cbd5e1', note: '旁觀' },
+    { k: 'Na^+', color: '#e2e8f0', note: '旁觀' },
+  ]
+  return (
+    <div className="flex flex-wrap gap-x-3 text-xs">
+      {items.map((it) => (
+        <Hl key={it.k} k={it.k}>
+          <span className="mr-1 inline-block size-2.5 rounded-full border border-black/20 align-middle" style={{ background: it.color }} />
+          <Chem>{it.k}</Chem>
+          {it.note && <span className="ml-0.5 text-ink-2">{it.note}</span>}
+        </Hl>
+      ))}
+    </div>
+  )
+}
+
+/** 完整反應式 → 完整離子方程式（旁觀離子劃掉）→ 淨離子反應式 */
+function SymbolicEquations({ result, revealed }: { result: PrecipitationResult; revealed: boolean }) {
+  if (!revealed) return <p className="text-sm text-ink-2">混合後，這裡會顯示反應式。</p>
+  const scene = particleScene(result)
+  if (!scene.complete) {
+    return (
+      <div className="space-y-2 text-sm">
+        {result.netIonic ? (
+          <>
+            <div className="text-xs text-ink-2">淨離子反應式</div>
+            <div className="rounded-lg bg-surface-2 px-2 py-2 text-center">
+              <Chem>{result.netIonic}</Chem>
+            </div>
+          </>
+        ) : (
+          <p>
+            沒有離子結合成難溶的物質，所以沒有淨反應：四種離子都仍在水中。
+          </p>
+        )}
+      </div>
+    )
+  }
+  const term = (t: { ion: string; coef: number; spectator: boolean }, i: number) => (
+    <span key={i}>
+      {i > 0 && ' + '}
+      <Hl k={t.ion.replace('↓', '')} className={t.spectator ? 'text-ink-2 line-through decoration-bad decoration-2' : 'font-semibold'}>
+        <Chem>{`${t.coef > 1 ? t.coef : ''}${t.ion}`}</Chem>
+      </Hl>
+    </span>
+  )
+  return (
+    <div className="space-y-3 text-sm">
+      <div>
+        <div className="text-xs text-ink-2">① 完整反應式</div>
+        <div className="overflow-x-auto">
+          <Chem>{result.fullEquation!}</Chem>
+        </div>
+      </div>
+      <div>
+        <div className="text-xs text-ink-2">② 寫成離子，兩邊都有的旁觀離子劃掉</div>
+        <div className="overflow-x-auto leading-relaxed">
+          {scene.complete.left.map(term)} → {scene.complete.right.map(term)}
+        </div>
+      </div>
+      <div>
+        <div className="text-xs text-ink-2">③ 淨離子反應式</div>
+        <div className="rounded-lg bg-surface-2 px-2 py-2 text-center font-semibold">
+          <Chem>{result.netIonic!}</Chem>
+        </div>
+      </div>
+    </div>
   )
 }
 

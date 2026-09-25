@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useMemo, useRef, useState } from 'react'
 import { atomLedger, hintElement, isBalanced, isSimplest, sideMasses } from '../../chem/balance'
 import { getElement } from '../../chem/elements'
 import { LEVEL_LABEL, REACTIONS, type Level, type Reaction } from '../../chem/equations'
@@ -6,16 +6,57 @@ import { molarMass } from '../../chem/formula'
 import { Chem } from '../../components/Chem'
 import { AtomLegend, Molecule } from '../../components/Molecule'
 import { ToolLayout } from '../../components/ToolLayout'
-import { Button, Callout, Card, CardTitle, Chip } from '../../components/ui'
+import { Hl, HighlightProvider } from '../../components/triplet/Highlight'
+import { useHighlight } from '../../components/triplet/highlightContext'
+import { DiagnosticSet } from '../../components/TwoTierQuestion'
+import { Button, Callout, Card, CardTitle, Chip, Segmented } from '../../components/ui'
+import { BALANCE_QUESTIONS } from '../../learning/questions/balance'
+import { useLearning } from '../../learning/useLearning'
+import { useTabParam } from '../../lib/useTabParam'
+import { AtomTally } from './AtomTally'
 import { TOOLS } from '../registry'
 
 const MAX_COEF = 12
 const LEVELS: Level[] = ['easy', 'medium', 'hard']
 
+const TABS = ['balance', 'quiz'] as const
+type Tab = (typeof TABS)[number]
+
 export default function Balancer() {
+  const [tab, setTab] = useTabParam<Tab>(TABS, 'balance')
+  return (
+    <ToolLayout meta={TOOLS.balancer} concepts={<Concepts />}>
+      <Segmented<Tab>
+        value={tab}
+        onChange={setTab}
+        options={[
+          { value: 'balance', label: '① 平衡反應式' },
+          { value: 'quiz', label: '② 診斷挑戰' },
+        ]}
+      />
+      {tab === 'balance' ? (
+        <HighlightProvider>
+          <Workbench />
+        </HighlightProvider>
+      ) : (
+        <DiagnosticSet questions={BALANCE_QUESTIONS} />
+      )}
+    </ToolLayout>
+  )
+}
+
+function Workbench() {
   const [reaction, setReaction] = useState<Reaction>(REACTIONS[0])
   const [coeffs, setCoeffs] = useState<number[]>(() => REACTIONS[0].coefficients.map(() => 1))
   const [showHint, setShowHint] = useState(false)
+  // 每個反應只記錄一次：自己配平成功算答對，先看答案算答錯
+  const recorded = useRef(new Set<string>())
+  const { store } = useLearning()
+  const recordOnce = (id: string, correct: boolean) => {
+    if (recorded.current.has(id)) return
+    recorded.current.add(id)
+    store.record('reaction.balancing', correct, { bkt: { guess: 0.1 } })
+  }
 
   const pick = (r: Reaction) => {
     setReaction(r)
@@ -24,11 +65,14 @@ export default function Balancer() {
   }
 
   const setCoef = (idx: number, delta: number) => {
-    setCoeffs((cs) => cs.map((c, i) => (i === idx ? Math.min(MAX_COEF, Math.max(1, c + delta)) : c)))
+    const next = coeffs.map((c, i) => (i === idx ? Math.min(MAX_COEF, Math.max(1, c + delta)) : c))
+    setCoeffs(next)
     setShowHint(false)
+    if (isBalanced(reaction, next) && isSimplest(next)) recordOnce(reaction.id, true)
   }
 
-  const ledger = atomLedger(reaction, coeffs)
+  // 以 useMemo 保持參考穩定，讓原子計數動畫不會每次渲染都重來
+  const ledger = useMemo(() => atomLedger(reaction, coeffs), [reaction, coeffs])
   const balanced = isBalanced(reaction, coeffs)
   const simplest = isSimplest(coeffs)
   const masses = sideMasses(reaction, coeffs)
@@ -37,7 +81,7 @@ export default function Balancer() {
   const species = [...reaction.reactants, ...reaction.products]
 
   return (
-    <ToolLayout meta={TOOLS.balancer} concepts={<Concepts />}>
+    <>
       <Card>
         <CardTitle>選一個反應</CardTitle>
         <div className="space-y-2">
@@ -89,7 +133,9 @@ export default function Balancer() {
                 return (
                   <tr key={row.element} className="border-b border-line last:border-0">
                     <td className="py-1.5">
-                      {row.element} <span className="text-ink-2">{getElement(row.element).nameZh}</span>
+                      <Hl k={row.element}>
+                        {row.element} <span className="text-ink-2">{getElement(row.element).nameZh}</span>
+                      </Hl>
                     </td>
                     <td className="py-1.5 text-right font-mono tabular-nums">{row.left}</td>
                     <td className="py-1.5 text-right font-mono tabular-nums">{row.right}</td>
@@ -132,22 +178,34 @@ export default function Balancer() {
             <Button variant="ghost" onClick={() => setCoeffs(reaction.coefficients.map(() => 1))}>
               重來
             </Button>
-            <Button variant="ghost" onClick={() => setCoeffs([...reaction.coefficients])}>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                if (!balanced) recordOnce(reaction.id, false)
+                setCoeffs([...reaction.coefficients])
+              }}
+            >
               看答案
             </Button>
           </div>
         </Card>
       </div>
-    </ToolLayout>
+
+      <Card>
+        <AtomTally ledger={ledger} />
+      </Card>
+      <p className="text-xs text-ink-2">滑過原子帳本或原子計數中的元素，上面分子裡的同種原子會一起亮起來。</p>
+    </>
   )
 }
 
 function SpeciesCard({ formula, coef, onChange }: { formula: string; coef: number; onChange: (d: number) => void }) {
+  const { key: focus } = useHighlight()
   return (
     <div className="flex flex-col items-center gap-2">
       <div className="flex max-w-56 min-h-8 flex-wrap items-center justify-center gap-1.5">
         {Array.from({ length: coef }, (_, k) => (
-          <Molecule key={k} formula={formula} scale={formula.length > 5 ? 0.7 : 1} />
+          <Molecule key={k} formula={formula} scale={formula.length > 5 ? 0.7 : 1} focus={focus} />
         ))}
       </div>
       <div className="text-xl font-semibold">

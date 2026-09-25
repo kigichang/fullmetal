@@ -198,6 +198,36 @@ const list: Misconception[] = [
     explanation: '波耳模型把電子畫在同心圓上，能說明電子分層，是國中使用的簡化模型。實際上電子沒有確定的軌跡，高中用「軌域」描述電子在某區域出現的機率。',
     remedy: { label: '比較波耳模型與軌域', link: '/periodic-table?tab=orbitals&level=senior' },
   },
+  {
+    id: 'change-subscripts',
+    nameZh: '以為平衡反應式時可以改化學式的下標',
+    explanation: '平衡時只能改係數。改下標會變成另一種物質，例如把 {{H2O}} 改成 {{H2O2}}，水就變成雙氧水了。',
+    remedy: { label: '練習只用係數平衡反應式', link: '/balance' },
+  },
+  {
+    id: 'coefficient-meaning',
+    nameZh: '誤解係數的意義',
+    explanation: '係數乘的是整個分子。{{2NH3}} 表示 2 個 {{NH3}} 分子，共有 2 個 N 原子、2 × 3 = 6 個 H 原子；係數不是只乘第一個元素，也不能和下標相加。',
+    remedy: { label: '數數分子裡的原子', link: '/balance' },
+  },
+  {
+    id: 'molecules-conserved',
+    nameZh: '以為反應前後分子數目也守恆',
+    explanation: '守恆的是「原子」的種類和數目，分子數可以改變。{{2H2 + O2 -> 2H2O}}：反應前 3 個分子，反應後只有 2 個分子，但 H、O 原子數都不變。',
+    remedy: { label: '看原子重新組合', link: '/balance' },
+  },
+  {
+    id: 'all-mix-precipitate',
+    nameZh: '以為兩種溶液混合一定會產生沉澱',
+    explanation: '只有離子結合成「難溶」的化合物時才會沉澱。含 {{Na^+}}、{{K^+}}、{{NH4^+}}、{{NO3^-}} 的化合物幾乎都可溶，混合後離子只是散在水中。',
+    remedy: { label: '混合兩種溶液看看', link: '/precipitation?tab=tube' },
+  },
+  {
+    id: 'spectators-react',
+    nameZh: '以為所有離子都參加了反應',
+    explanation: '沉澱反應中只有結合成沉澱的離子真正反應，其他離子（旁觀離子）反應前後都還在溶液中，所以淨離子反應式不寫它們。',
+    remedy: { label: '看粒子層的沉澱反應', link: '/precipitation?tab=tube' },
+  },
 ]
 
 export const MISCONCEPTIONS: Record<string, Misconception> = Object.fromEntries(list.map((m) => [m.id, m]))

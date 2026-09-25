@@ -103,3 +103,30 @@ describe('precipitation', () => {
     expect(evaluate(ion(CATIONS, 'Ag+'), ion(ANIONS, 'OH-')).formula).toBe('Ag2O')
   })
 })
+
+describe('precipitation particle scene', () => {
+  it('balances charges and marks spectators', async () => {
+    const { particleScene } = await import('./precipitation')
+    const agcl = particleScene(evaluate(ion(CATIONS, 'Ag+'), ion(ANIONS, 'Cl-')))
+    expect(agcl.cations).toBe(agcl.anions)
+    expect(agcl.nitrates).toBe(agcl.cations)
+    expect(agcl.solidUnits).toBe(agcl.portions)
+    expect(agcl.complete!.left.filter((t) => t.spectator).map((t) => t.ion)).toEqual(['NO3^-', 'Na^+'])
+
+    const feoh = particleScene(evaluate(ion(CATIONS, 'Fe3+'), ion(ANIONS, 'OH-')))
+    expect(feoh.anions).toBe(3 * feoh.cations)
+    expect(feoh.nitrates).toBe(3 * feoh.cations)
+    expect(feoh.sodiums).toBe(feoh.anions)
+    const total = feoh.cations + feoh.anions + feoh.nitrates + feoh.sodiums
+    expect(total).toBeLessThanOrEqual(36)
+  })
+  it('soluble and special pairs form no regular solid', async () => {
+    const { particleScene } = await import('./precipitation')
+    expect(particleScene(evaluate(ion(CATIONS, 'Na+'), ion(ANIONS, 'Cl-'))).solidUnits).toBe(0)
+    const special = particleScene(evaluate(ion(CATIONS, 'Fe3+'), ion(ANIONS, 'CO3 2-')))
+    expect(special.solidUnits).toBe(0)
+    expect(special.complete).toBeNull()
+    const slight = particleScene(evaluate(ion(CATIONS, 'Ca2+'), ion(ANIONS, 'SO4 2-')))
+    expect(slight.solidUnits).toBeLessThan(slight.portions)
+  })
+})

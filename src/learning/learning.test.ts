@@ -9,6 +9,8 @@ import { ACID_BASE_QUESTIONS } from './questions/acidBase'
 import { EQUILIBRIUM_QUESTIONS } from './questions/equilibrium'
 import { MOLE_QUESTIONS } from './questions/mole'
 import { PERIODIC_QUESTIONS } from './questions/periodic'
+import { BALANCE_QUESTIONS } from './questions/balance'
+import { PRECIPITATION_QUESTIONS } from './questions/precipitation'
 import { REDOX_QUESTIONS } from './questions/redox'
 import { createStore, parseState } from './store'
 import { grade } from './twoTier'
@@ -38,7 +40,7 @@ describe('two-tier grading', () => {
 })
 
 describe('question banks', () => {
-  const all = [...MOLE_QUESTIONS, ...ACID_BASE_QUESTIONS, ...REDOX_QUESTIONS, ...EQUILIBRIUM_QUESTIONS, ...PERIODIC_QUESTIONS]
+  const all = [...MOLE_QUESTIONS, ...ACID_BASE_QUESTIONS, ...REDOX_QUESTIONS, ...EQUILIBRIUM_QUESTIONS, ...PERIODIC_QUESTIONS, ...BALANCE_QUESTIONS, ...PRECIPITATION_QUESTIONS]
   it('ids are unique', () => {
     expect(new Set(all.map((q) => q.id)).size).toBe(all.length)
   })
@@ -56,7 +58,7 @@ describe('question banks', () => {
 describe('misconception remedies', () => {
   it('every misconception is used by at least one question or tool', () => {
     const used = new Set(
-      [...MOLE_QUESTIONS, ...ACID_BASE_QUESTIONS, ...REDOX_QUESTIONS, ...EQUILIBRIUM_QUESTIONS, ...PERIODIC_QUESTIONS].flatMap((q) =>
+      [...MOLE_QUESTIONS, ...ACID_BASE_QUESTIONS, ...REDOX_QUESTIONS, ...EQUILIBRIUM_QUESTIONS, ...PERIODIC_QUESTIONS, ...BALANCE_QUESTIONS, ...PRECIPITATION_QUESTIONS].flatMap((q) =>
         [...q.options, ...q.reasons].map((c) => c.misconception).filter(Boolean),
       ),
     )
