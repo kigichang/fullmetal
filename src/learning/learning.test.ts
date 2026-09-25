@@ -6,7 +6,9 @@ import { CONCEPT_BY_ID } from './concepts'
 import { isMastered, updateMastery } from './mastery'
 import { MISCONCEPTIONS } from './misconceptions'
 import { ACID_BASE_QUESTIONS } from './questions/acidBase'
+import { EQUILIBRIUM_QUESTIONS } from './questions/equilibrium'
 import { MOLE_QUESTIONS } from './questions/mole'
+import { REDOX_QUESTIONS } from './questions/redox'
 import { createStore, parseState } from './store'
 import { grade } from './twoTier'
 
@@ -35,7 +37,7 @@ describe('two-tier grading', () => {
 })
 
 describe('question banks', () => {
-  const all = [...MOLE_QUESTIONS, ...ACID_BASE_QUESTIONS]
+  const all = [...MOLE_QUESTIONS, ...ACID_BASE_QUESTIONS, ...REDOX_QUESTIONS, ...EQUILIBRIUM_QUESTIONS]
   it('ids are unique', () => {
     expect(new Set(all.map((q) => q.id)).size).toBe(all.length)
   })
@@ -47,6 +49,19 @@ describe('question banks', () => {
       if (c.misconception) expect(MISCONCEPTIONS[c.misconception], c.misconception).toBeDefined()
       expect(c.correct && c.misconception).toBeFalsy()
     }
+  })
+})
+
+describe('misconception remedies', () => {
+  it('every misconception is used by at least one question or tool', () => {
+    const used = new Set(
+      [...MOLE_QUESTIONS, ...ACID_BASE_QUESTIONS, ...REDOX_QUESTIONS, ...EQUILIBRIUM_QUESTIONS].flatMap((q) =>
+        [...q.options, ...q.reasons].map((c) => c.misconception).filter(Boolean),
+      ),
+    )
+    // 由工具互動偵測（不在題庫中）的迷思
+    for (const id of ['limiting-smaller-mass']) used.add(id)
+    for (const id of Object.keys(MISCONCEPTIONS)) expect(used.has(id), id).toBe(true)
   })
 })
 
@@ -144,5 +159,15 @@ describe('sci format', () => {
     expect(sci(1.8e-5, 1)).toBe('1.8×10⁻⁵')
     expect(sci(1.3333e-3)).toBe('1.33×10⁻³')
     expect(sci(6.02e23)).toBe('6.02×10²³')
+  })
+})
+
+describe('chemUnicode', () => {
+  it('renders subscripts and charges', async () => {
+    const { chemUnicode } = await import('../lib/format')
+    expect(chemUnicode('N2O4')).toBe('N₂O₄')
+    expect(chemUnicode('Fe^3+')).toBe('Fe³⁺')
+    expect(chemUnicode('Cr2O7^2-')).toBe('Cr₂O₇²⁻')
+    expect(chemUnicode('SCN^-')).toBe('SCN⁻')
   })
 })

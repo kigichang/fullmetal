@@ -90,6 +90,84 @@ const list: Misconception[] = [
     explanation: '弱酸在水中只有少部分解離，{{[H^+]}} 遠小於酸的濃度。0.1 M 醋酸的 {{[H^+]}} 約為 1.3×10⁻³ M，pH 約 2.9，而不是 1。',
     remedy: { label: '看醋酸的解離度', link: '/acid-base?tab=strength&level=senior&left=HCl&lc=0.1&right=CH3COOH&rc=0.1' },
   },
+  {
+    id: 'contains-o-is-oxidized',
+    nameZh: '以為含氧的物質就是被氧化的一方',
+    explanation: '要看反應前後的變化：得到氧的物質被氧化，失去氧的物質被還原。{{CuO + H2 -> Cu + H2O}} 中，{{CuO}} 失去氧被還原，{{H2}} 得到氧被氧化。',
+    remedy: { label: '分析氫氣還原氧化銅', link: '/redox?tab=reactions&rx=cuo-h2' },
+  },
+  {
+    id: 'agent-confusion',
+    nameZh: '把氧化劑、還原劑和「被氧化、被還原」弄反',
+    explanation: '還原劑使別人被還原，自己被氧化；氧化劑使別人被氧化，自己被還原。例如鎂帶燃燒時，{{O2}} 是氧化劑，它本身被還原。',
+    remedy: { label: '看反應中誰被氧化、誰被還原', link: '/redox?tab=reactions&rx=mg-o2' },
+  },
+  {
+    id: 'oxidation-needs-oxygen',
+    nameZh: '以為氧化還原一定要有氧參與',
+    explanation: '「得氧、失氧」是國中的說法；更完整的定義是電子轉移：失去電子（氧化數升高）是氧化，得到電子（氧化數降低）是還原。{{Zn + Cu^2+ -> Zn^2+ + Cu}} 沒有氧，但仍是氧化還原。',
+    remedy: { label: '用氧化數分析鋅與銅離子', link: '/redox?tab=reactions&rx=zn-cu&level=senior' },
+  },
+  {
+    id: 'reduction-loses-electrons',
+    nameZh: '把「還原」和「失去電子」配在一起',
+    explanation: '失去電子是氧化（氧化數升高），得到電子是還原（氧化數降低）。',
+    remedy: { label: '看氧化數怎麼變化', link: '/redox?tab=reactions&level=senior' },
+  },
+  {
+    id: 'less-active-displaces',
+    nameZh: '以為任何金屬都能置換溶液中的金屬離子',
+    explanation: '只有活性較大的金屬，才能把活性較小的金屬離子還原成金屬。銅比鋅不活潑，所以銅片放進硫酸鋅溶液不會反應。',
+    remedy: { label: '試試不同金屬與溶液', link: '/redox?tab=activity' },
+  },
+  {
+    id: 'electrons-through-solution',
+    nameZh: '以為電子會經過溶液或鹽橋移動',
+    explanation: '電子只在導線（外電路）中流動，從負極流向正極。溶液和鹽橋中移動的是離子，用來維持兩邊電荷平衡。',
+    remedy: { label: '看鋅銅電池中電子與離子的移動', link: '/redox?tab=cell' },
+  },
+  {
+    id: 'oxidation-number-is-charge',
+    nameZh: '以為氧化數就是原子真正帶的電荷',
+    explanation: '氧化數是依規則「假設」電子全歸某一方時的電荷，是記帳工具。{{CO2}} 是共價分子，碳原子並不真的帶 +4 電荷；{{MnO4^-}} 整個離子帶 −1，但 Mn 的氧化數是 +7。',
+    remedy: { label: '一步步推算氧化數', link: '/redox?tab=reactions&level=senior' },
+  },
+  {
+    id: 'equilibrium-static',
+    nameZh: '以為達到平衡時反應就停止了',
+    explanation: '平衡是動態的：正反應和逆反應都還在進行，只是速率相等，所以濃度看起來不再改變。',
+    remedy: { label: '看粒子在平衡時仍持續反應', link: '/equilibrium?tab=dynamic' },
+  },
+  {
+    id: 'equal-concentrations',
+    nameZh: '以為平衡時反應物與生成物一樣多',
+    explanation: '平衡的條件是「正、逆反應速率相等」，不是「濃度相等」。平衡時兩邊的量可以差很多，由平衡常數 K 決定。',
+    remedy: { label: '調整正、逆反應的難易度看看', link: '/equilibrium?tab=dynamic' },
+  },
+  {
+    id: 'catalyst-shifts',
+    nameZh: '以為催化劑會使平衡移動、增加產量',
+    explanation: '催化劑同時加快正反應和逆反應，只會讓系統更快達到平衡，平衡時的組成（產量）不變。',
+    remedy: { label: '在合成氨中加入催化劑', link: '/equilibrium?tab=shift&sys=haber' },
+  },
+  {
+    id: 'full-restoration',
+    nameZh: '以為平衡移動會把改變完全抵消',
+    explanation: '勒沙特列原理說平衡會往「減輕」改變的方向移動，但只能部分抵消。加入 {{NO2}} 後重新平衡，{{NO2}} 仍比加入前多。',
+    remedy: { label: '加入 NO₂ 看濃度變化', link: '/equilibrium?tab=shift&sys=no2' },
+  },
+  {
+    id: 'k-changes-with-concentration',
+    nameZh: '以為改變濃度或壓力會改變平衡常數 K',
+    explanation: '在溫度不變時，K 是定值。改變濃度或壓力只會使 Q 暫時不等於 K，系統再移動到 Q = K。只有溫度會改變 K。',
+    remedy: { label: '比較 Q 與 K 的變化', link: '/equilibrium?tab=shift&level=senior' },
+  },
+  {
+    id: 'one-way',
+    nameZh: '以為反應只能往一個方向進行',
+    explanation: '可逆反應可以往正、逆兩個方向進行。改變條件（例如加酸、加鹼），平衡可以往回移動。',
+    remedy: { label: '對鉻酸根溶液加酸、加鹼', link: '/equilibrium?tab=shift&sys=chromate' },
+  },
 ]
 
 export const MISCONCEPTIONS: Record<string, Misconception> = Object.fromEntries(list.map((m) => [m.id, m]))

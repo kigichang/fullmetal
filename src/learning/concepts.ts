@@ -17,7 +17,14 @@ export const CONCEPTS: Concept[] = [
   { id: 'acid.indicator', nameZh: '酸鹼指示劑', level: 'junior', link: '/acid-base?tab=scale' },
   { id: 'acid.neutralization', nameZh: '酸鹼中和', level: 'junior', link: '/acid-base?tab=neutralize' },
   { id: 'acid.strength-vs-concentration', nameZh: '酸鹼的強度與濃度', level: 'junior', link: '/acid-base?tab=strength' },
+  { id: 'redox.oxygen', nameZh: '氧化與還原（得氧、失氧）', level: 'junior', link: '/redox?tab=reactions' },
+  { id: 'redox.activity', nameZh: '金屬活性與置換反應', level: 'junior', link: '/redox?tab=activity' },
+  { id: 'redox.cell', nameZh: '電池的原理', level: 'junior', link: '/redox?tab=cell' },
+  { id: 'eq.dynamic', nameZh: '可逆反應與動態平衡', level: 'junior', link: '/equilibrium?tab=dynamic' },
+  { id: 'eq.le-chatelier', nameZh: '平衡移動（勒沙特列原理）', level: 'junior', link: '/equilibrium?tab=shift' },
   { id: 'acid.weak-ph', nameZh: '弱酸弱鹼的 pH 與解離度', level: 'senior', link: '/acid-base?tab=strength&level=senior' },
+  { id: 'redox.oxidation-number', nameZh: '氧化數與電子轉移', level: 'senior', link: '/redox?tab=reactions&level=senior' },
+  { id: 'eq.q-vs-k', nameZh: '反應商 Q 與平衡常數 K', level: 'senior', link: '/equilibrium?tab=shift&level=senior' },
 ]
 
 export const CONCEPT_BY_ID: Record<string, Concept> = Object.fromEntries(CONCEPTS.map((c) => [c.id, c]))

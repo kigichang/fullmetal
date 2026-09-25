@@ -21,6 +21,8 @@ const list: Element[] = [
   { symbol: 'Cl', nameZh: '氯', mass: 35.5, color: '#22c55e', radius: 1.1 },
   { symbol: 'K', nameZh: '鉀', mass: 39, color: '#7c3aed', radius: 1.25 },
   { symbol: 'Ca', nameZh: '鈣', mass: 40, color: '#65a30d', radius: 1.2 },
+  { symbol: 'Cr', nameZh: '鉻', mass: 52, color: '#8a99c7', radius: 1.15 },
+  { symbol: 'Mn', nameZh: '錳', mass: 55, color: '#9c7ac7', radius: 1.15 },
   { symbol: 'Fe', nameZh: '鐵', mass: 56, color: '#78716c', radius: 1.15 },
   { symbol: 'Cu', nameZh: '銅', mass: 63.5, color: '#b45309', radius: 1.15 },
   { symbol: 'Zn', nameZh: '鋅', mass: 65, color: '#64748b', radius: 1.15 },

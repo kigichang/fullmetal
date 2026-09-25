@@ -8,6 +8,8 @@ import PeriodicTable from './tools/PeriodicTable/PeriodicTable'
 import Precipitation from './tools/Precipitation/Precipitation'
 import { TOOLS } from './tools/registry'
 import Stoichiometry from './tools/Stoichiometry/Stoichiometry'
+import Equilibrium from './tools/Equilibrium/Equilibrium'
+import Redox from './tools/Redox/Redox'
 
 const NAV = [
   { to: TOOLS.periodicTable.path, label: '週期表' },
@@ -15,6 +17,8 @@ const NAV = [
   { to: TOOLS.stoichiometry.path, label: '莫耳計算' },
   { to: TOOLS.acidBase.path, label: '酸鹼' },
   { to: TOOLS.precipitation.path, label: '沉澱' },
+  { to: TOOLS.redox.path, label: '氧化還原' },
+  { to: TOOLS.equilibrium.path, label: '平衡' },
   { to: '/progress', label: '我的紀錄' },
 ]
 
@@ -59,6 +63,8 @@ export default function App() {
             <Route path={TOOLS.stoichiometry.path} element={<Stoichiometry />} />
             <Route path={TOOLS.acidBase.path} element={<AcidBase />} />
             <Route path={TOOLS.precipitation.path} element={<Precipitation />} />
+            <Route path={TOOLS.redox.path} element={<Redox />} />
+            <Route path={TOOLS.equilibrium.path} element={<Equilibrium />} />
             <Route path="/progress" element={<Progress />} />
             <Route path="*" element={<Home />} />
           </Routes>

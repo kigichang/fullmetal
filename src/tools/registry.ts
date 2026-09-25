@@ -36,4 +36,18 @@ export const TOOLS = {
     goal: '任選陽離子與陰離子，看會不會沉澱、沉澱是什麼顏色。',
     preview: 'Ag^+ + Cl^- -> AgCl↓',
   },
+  redox: {
+    path: '/redox',
+    title: '氧化還原與電池',
+    unit: '九年級・氧化與還原（高中：氧化數、電化學）',
+    goal: '從得失氧到電子轉移：看金屬置換、電池中電子怎麼流，並一步步推算氧化數。',
+    preview: 'Zn + Cu^2+ -> Zn^2+ + Cu',
+  },
+  equilibrium: {
+    path: '/equilibrium',
+    title: '化學平衡',
+    unit: '九年級・可逆反應與平衡（高中：平衡常數）',
+    goal: '看平衡時粒子仍在反應，再改變溫度、濃度、壓力，觀察平衡怎麼移動。',
+    preview: 'N2O4 <=> 2NO2',
+  },
 } satisfies Record<string, ToolMeta>

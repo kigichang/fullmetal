@@ -2,7 +2,15 @@ import { Link } from 'react-router-dom'
 import { Chem } from '../components/Chem'
 import { TOOLS } from '../tools/registry'
 
-const ORDER = [TOOLS.periodicTable, TOOLS.balancer, TOOLS.stoichiometry, TOOLS.acidBase, TOOLS.precipitation]
+const ORDER = [
+  TOOLS.periodicTable,
+  TOOLS.balancer,
+  TOOLS.stoichiometry,
+  TOOLS.acidBase,
+  TOOLS.precipitation,
+  TOOLS.redox,
+  TOOLS.equilibrium,
+]
 
 export default function Home() {
   return (
@@ -23,7 +31,7 @@ export default function Home() {
         </p>
       </section>
 
-      <ul className="grid gap-4 sm:grid-cols-2">
+      <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {ORDER.map((t) => (
           <li key={t.path}>
             <Link

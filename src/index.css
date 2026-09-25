@@ -17,6 +17,11 @@
   --warn: #a16207;
   --warn-soft: #fef3c7;
   --glass: #e2e8f0;
+  /* 圖表類別色（dataviz 參考色盤第 1–4 格，已驗證） */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-4: #eda100;
   color-scheme: light;
 }
 
@@ -38,6 +43,10 @@
     --warn: #fbbf24;
     --warn-soft: #422006;
     --glass: #475569;
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-4: #c98500;
     color-scheme: dark;
   }
 }
@@ -103,6 +112,15 @@ input[type='range'] {
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes electron-flow {
+  from {
+    left: -8%;
+  }
+  to {
+    left: 100%;
   }
 }
 
