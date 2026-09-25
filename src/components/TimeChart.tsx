@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef, useState, type KeyboardEvent, type PointerEven
 import { chemUnicode } from '../lib/format'
 import { Chem } from './Chem'
 import { useHighlight } from './triplet/highlightContext'
+import { niceStep } from '../lib/scale'
 
 export interface TimeSeries {
   /** 與三表徵高亮共用的 key（化學式） */
@@ -20,13 +21,6 @@ export interface TimeMarker {
 
 const PAD = { top: 22, right: 64, bottom: 28, left: 52 }
 
-/** 取「好讀」的刻度間距（1、2、5 × 10ⁿ），讓刻度約 3–5 個 */
-function niceStep(max: number): number {
-  const raw = max / 4
-  const p = 10 ** Math.floor(Math.log10(raw))
-  const m = raw / p
-  return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 5 ? 5 : 10) * p
-}
 
 /**
  * 時間序列折線圖：2px 線、直接標籤、圖例、十字線＋提示框、數據表。

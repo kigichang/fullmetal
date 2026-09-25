@@ -68,3 +68,22 @@ describe('periodic table data', () => {
     expect(el('U').massIsMassNumber).toBe(false)
   })
 })
+
+describe('orbital boxes', () => {
+  it("follows Hund's rule: N has three unpaired 2p electrons, O has one pair", async () => {
+    const { orbitalBoxes } = await import('./periodicTable')
+    const p = (z: number) => orbitalBoxes(z).find((b) => b.name === '2p')!.orbitals
+    expect(p(7)).toEqual([[true, false], [true, false], [true, false]])
+    expect(p(8)).toEqual([[true, true], [true, false], [true, false]])
+  })
+  it('shows 4s before 3d and the chromium exception', async () => {
+    const { orbitalBoxes, ruleConfiguration, configurationOf, hasConfigurationException } = await import('./periodicTable')
+    expect(orbitalBoxes(19).map((b) => b.name)).toEqual(['1s', '2s', '2p', '3s', '3p', '4s'])
+    expect(ruleConfiguration(24)).toBe('[Ar] 3d4 4s2')
+    expect(configurationOf(24)).toBe('[Ar] 3d5 4s1')
+    expect(hasConfigurationException(24)).toBe(true)
+    expect(hasConfigurationException(26)).toBe(false)
+    const total = (z: number) => orbitalBoxes(z).reduce((s, b) => s + b.electrons, 0)
+    for (let z = 1; z <= 36; z++) expect(total(z), String(z)).toBe(z)
+  })
+})

@@ -5,7 +5,7 @@ export const TOOLS = {
     path: '/periodic-table',
     title: '元素週期表',
     unit: '八年級・物質的基本結構',
-    goal: '118 個元素一次看齊：點任一元素看電子排列、原子量與生活應用。',
+    goal: '先從數據自己找出週期表的規律，再查 118 個元素的電子排列、原子量與軌域。',
     preview: 'H He Li Be B C N O',
   },
   balancer: {

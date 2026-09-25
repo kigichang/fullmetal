@@ -168,6 +168,36 @@ const list: Misconception[] = [
     explanation: '可逆反應可以往正、逆兩個方向進行。改變條件（例如加酸、加鹼），平衡可以往回移動。',
     remedy: { label: '對鉻酸根溶液加酸、加鹼', link: '/equilibrium?tab=shift&sys=chromate' },
   },
+  {
+    id: 'same-period-same-properties',
+    nameZh: '以為同一週期（橫列）的元素性質相似',
+    explanation: '性質相似的是同一「族」（直行）的元素，因為它們最外層電子數相同。同一週期由左到右，最外層電子數逐一增加，性質從金屬逐漸變成非金屬。',
+    remedy: { label: '收集數據找出規律', link: '/periodic-table?tab=inquiry' },
+  },
+  {
+    id: 'group-by-mass',
+    nameZh: '以為週期表依原子量排列',
+    explanation: '現代週期表依「原子序」（質子數）排列。例如碲（Te）的原子量 127.6 比碘（I）的 126.9 大，但碲的原子序 52 比碘的 53 小，所以排在碘前面。',
+    remedy: { label: '在週期表上比較碲和碘', link: '/periodic-table?tab=table' },
+  },
+  {
+    id: 'fill-by-shell-order',
+    nameZh: '以為一定要先填滿內層才填下一層',
+    explanation: '國中課本前 20 號元素每層依序最多放 2、8、8 個電子，所以鉀是 2, 8, 8, 1，不是 2, 8, 9。高中會學到原因：4s 軌域的能量比 3d 低，所以先填 4s。',
+    remedy: { label: '看鉀的電子排列與軌域', link: '/periodic-table?tab=orbitals&z=19' },
+  },
+  {
+    id: 'bigger-z-bigger-atom',
+    nameZh: '以為原子序越大，原子一定越大',
+    explanation: '同一週期由左到右，電子層數相同，但原子核的正電荷越來越多，把電子拉得更緊，所以原子半徑反而變小。只有同族往下增加電子層時，原子才變大。',
+    remedy: { label: '用數據看原子半徑的趨勢', link: '/periodic-table?tab=inquiry&level=senior&prop=radius' },
+  },
+  {
+    id: 'bohr-orbits-real',
+    nameZh: '以為電子沿著固定的圓形軌道繞原子核',
+    explanation: '波耳模型把電子畫在同心圓上，能說明電子分層，是國中使用的簡化模型。實際上電子沒有確定的軌跡，高中用「軌域」描述電子在某區域出現的機率。',
+    remedy: { label: '比較波耳模型與軌域', link: '/periodic-table?tab=orbitals&level=senior' },
+  },
 ]
 
 export const MISCONCEPTIONS: Record<string, Misconception> = Object.fromEntries(list.map((m) => [m.id, m]))

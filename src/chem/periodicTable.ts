@@ -245,7 +245,7 @@ function categoryOf(z: number, symbol: string, group: number | null): Category {
 
 // ---- 電子組態 ----
 
-const ORBITALS = ['1s', '2s', '2p', '3s', '3p', '4s', '3d', '4p', '5s', '4d', '5p', '6s', '4f', '5d', '6p', '7s', '5f', '6d', '7p']
+export const ORBITALS = ['1s', '2s', '2p', '3s', '3p', '4s', '3d', '4p', '5s', '4d', '5p', '6s', '4f', '5d', '6p', '7s', '5f', '6d', '7p']
 const CAPACITY: Record<string, number> = { s: 2, p: 6, d: 10, f: 14 }
 
 /** 不依照填入順序（Madelung 規則）的例外，列出與規則不同的軌域 */
@@ -272,7 +272,8 @@ const EXCEPTIONS: Record<number, Record<string, number>> = {
   103: { '6d': 0, '7p': 1 }, // Lr
 }
 
-export function orbitalFilling(z: number): Record<string, number> {
+/** 只依填入順序規則（Madelung）填電子，不考慮例外 */
+export function ruleFilling(z: number): Record<string, number> {
   const fill: Record<string, number> = {}
   let left = z
   for (const orb of ORBITALS) {
@@ -281,8 +282,42 @@ export function orbitalFilling(z: number): Record<string, number> {
     fill[orb] = n
     left -= n
   }
-  Object.assign(fill, EXCEPTIONS[z] ?? {})
   return fill
+}
+
+/** 實際的基態電子填入（含 Cr、Cu 等例外） */
+export function orbitalFilling(z: number): Record<string, number> {
+  return { ...ruleFilling(z), ...(EXCEPTIONS[z] ?? {}) }
+}
+
+export const hasConfigurationException = (z: number) => z in EXCEPTIONS
+
+export interface SubshellBoxes {
+  /** 例如 "3d" */
+  name: string
+  electrons: number
+  /** 每個軌域的 [上旋, 下旋]；依洪德定則先各填一個上旋 */
+  orbitals: [boolean, boolean][]
+}
+
+/** 軌域方格圖：依能量由低到高列出有電子（或已開始填）的副殼層 */
+export function orbitalBoxes(z: number): SubshellBoxes[] {
+  const fill = orbitalFilling(z)
+  const lastIdx = Math.max(...Object.keys(fill).map((o) => ORBITALS.indexOf(o)))
+  return ORBITALS.slice(0, lastIdx + 1).map((name) => {
+    const e = fill[name] ?? 0
+    const k = CAPACITY[name[1]] / 2
+    return {
+      name,
+      electrons: e,
+      orbitals: Array.from({ length: k }, (_, i) => [i < Math.min(e, k), i < e - k] as [boolean, boolean]),
+    }
+  })
+}
+
+/** 依規則會得到的組態（用來和實際組態比較） */
+export function ruleConfiguration(z: number): string {
+  return formatConfig(z, ruleFilling(z))
 }
 
 export function shellsOf(z: number): number[] {
@@ -309,9 +344,12 @@ const L_ORDER = 'spdf'
 
 /** 例如 Fe → "[Ar] 3d6 4s2"（依主量子數排列，上標以數字表示） */
 export function configurationOf(z: number): string {
+  return formatConfig(z, orbitalFilling(z))
+}
+
+function formatConfig(z: number, fill: Record<string, number>): string {
   const core = NOBLE_CORES.find(([cz]) => cz < z)
   const coreFill = core ? orbitalFilling(core[0]) : {}
-  const fill = orbitalFilling(z)
   const parts = Object.entries(fill)
     .map(([orb, n]) => [orb, n - (coreFill[orb] ?? 0)] as const)
     .filter(([, n]) => n > 0)
